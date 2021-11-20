@@ -1,10 +1,25 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import "firebase/firestore";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+// import { db } from "firebase";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDVuIQ-IEsGMxaX2koRGp-XataTk2USBTw",
-  authDomain: "clone-1471.firebaseapp.com",
-  projectId: "clone-1471",
-  storageBucket: "clone-1471.appspot.com",
-  messagingSenderId: "928229260493",
-  appId: "1:928229260493:web:458a28c2d3ba462a283d84",
-  measurementId: "G-7F7BJC0N6D",
+  apiKey: "AIzaSyC0XhvOr7LRo4GYZrvO2EGWVDYcgQQVCaM",
+  authDomain: "clone-bg.firebaseapp.com",
+  projectId: "clone-bg",
+  storageBucket: "clone-bg.appspot.com",
+  messagingSenderId: "356043029817",
+  appId: "1:356043029817:web:2cca0c3e82d6f6c067bce8",
+  measurementId: "G-K0Y9EJLYM2",
 };
+
+// Initialize Firebase
+const App = initializeApp(firebaseConfig);
+const auth = getAuth(App);
+
+export { auth };
