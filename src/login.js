@@ -1,18 +1,22 @@
 import React, { useState } from "react";
-import "./login.css";
+import "./Login.css";
 import { Link, useHistory } from "react-router-dom";
 import { auth } from "./firebase";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 function Login() {
   const history = useHistory();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const signIn = (e) => {
     e.preventDefault();
     // firebase
-    auth
-      .signInWithEmailAndPassword(email, password)
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, email, password)
       .then((auth) => {
         if (auth) {
           history.push("/");
@@ -23,8 +27,8 @@ function Login() {
 
   const register = (e) => {
     e.preventDefault();
-    auth
-      .createUserWithEmailAndPassword(email, password)
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, email, password)
       .then((auth) => {
         if (auth) {
           history.push("/");
