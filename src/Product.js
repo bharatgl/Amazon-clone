@@ -1,10 +1,12 @@
 import React from "react";
 import "./Product.css";
 import { useStateValue } from "./StateProvider";
+import FlipMove from "react-flip-move";
 
 function Product({ title, image, id, price, rating }) {
   const [{ basket }, dispatch] = useStateValue();
-
+  <FlipMove enterAnimation="accordionHorizontal" leaveAnimation="accordionHorizontal" />
+  
   const addToBasket = () => {
     dispatch({
       type: "ADD_TO_BASKET",

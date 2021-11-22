@@ -1,9 +1,16 @@
 import React from "react";
 import "./Home.css";
 import Product from "./Product.js";
+import FlipMove from "react-flip-move";
+
+
 
 function Home() {
+ 
+  <FlipMove enterAnimation="elevator" leaveAnimation="elevator" />;
+  
   return (
+
     <div className="home">
       <div className="home_conatiner">
         <img
@@ -65,7 +72,9 @@ function Home() {
         </div>
       </div>
     </div>
+  
   );
+ 
 }
 
 export default Home;
