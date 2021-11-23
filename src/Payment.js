@@ -1,16 +1,18 @@
-import { Link, useHistory } from "react-router-dom";
-import React, { useState, useEffect } from "react";
-import CheckoutProduct from "./CheckoutProduct";
+import React, { useState } from "react";
 import "./Payment.css";
 import { useStateValue } from "./StateProvider";
-import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { getBasketTotal } from "./reducer";
+import CheckoutProduct from "./CheckoutProduct";
+import { Link, useHistory } from "react-router-dom";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import CurrencyFormat from "react-currency-format";
-import axios from "axios";
+import { getBasketTotal } from "./reducer";
+import axios from "./axios";
+// import { database } from "./firebase";
+import { getDatabase } from "@firebase/database";
 
 function Payment() {
-  const [{ basket, user }, dispatch] = useStateValue();
   const history = useHistory();
+  const [{ user, basket }, dispatch] = useStateValue();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -33,11 +35,10 @@ function Payment() {
     getClientSecret();
   }, [basket]);
 
-  console.log("THE SECRET IS >>>", clientSecret);
+  console.log("[CLIENTSECRET]", clientSecret);
 
-  const handleSubmit = async (event) => {
-    // do all the fancy stripe stuff.....
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setProcessing(true);
 
     const payload = await stripe
@@ -47,86 +48,94 @@ function Payment() {
         },
       })
       .then(({ paymentIntent }) => {
-        //paymentIntent = payment confirmation
+        // Payment Intent is Payment Confirmation
+        const database = getDatabase();
+
+        database
+          .collection("users")
+          .doc(user?.uid)
+          .collection("Orders")
+          .doc(paymentIntent.id)
+          .set({
+            basket,
+            amount: paymentIntent.amount,
+            created: paymentIntent.created,
+          });
 
         setSucceeded(true);
         setError(null);
         setProcessing(false);
 
-        history.replace("/orders");
+        dispatch({
+          type: "EMPTY_BASKET",
+        });
+
+        history.replace("./Orders");
       });
   };
 
-  const handleChange = (event) => {
-    // Listen for changes in the CardElement
-    // and display any errors as teh customer types their card details
-    setDisabled(event.empty);
-    setError(event.error ? event.error.message : " ");
+  const handleChange = (e) => {
+    setDisabled(e.empty);
+    setError(e.error ? e.error.message : "");
   };
 
   return (
     <div className="payment">
       <div className="payment__container">
         <h1>
-          checkout (<Link to="/checkout">{basket?.length} items</Link>)
+          Checkout (<Link to="/checkout">{basket?.length} items</Link>)
         </h1>
-        {/* Payment section - delivery address */}
         <div className="payment__section">
           <div className="payment__title">
-            <h3> Delivery Address</h3>
+            <h3>Delivery Address</h3>
           </div>
           <div className="payment__address">
             <p>{user?.email}</p>
-            <p>123 React Lane</p>
-            <p>Mumbai, India</p>
+            <p>123 React</p>
+            <p>Mumbai</p>
           </div>
         </div>
-      </div>
-
-      {/* Payment section - Review Items */}
-      <div className="payment__section">
-        <div className="payment__title">
-          <h3>Review items and Delivery</h3>
-        </div>
-        <div className="payment__items">
-          {basket.map((item) => (
-            <CheckoutProduct
-              id={item.id}
-              title={item.title}
-              image={item.image}
-              rating={item.rating}
-              price={item.price}
-            />
-          ))}
-        </div>
-      </div>
-      {/* Payment section -Payment Methods */}
-      <div className="payment__section">
-        <div className="payment__title">
-          <h3> Payment Methods</h3>
-        </div>
-        <div className="payment__details">
-          {/* Stripe magic will go */}
-          <form onSubmit={handleSubmit}>
-            <CardElement onchange={"handleChange"} />
-
-            <div className="payment__priceContainer">
-              <CurrencyFormat
-                renderText={(value) => <h3>Order Total: {value} </h3>}
-                decimalScale={2}
-                value={getBasketTotal(basket)}
-                displayType={"text"}
-                thousandSeparator={true}
-                prefix={"₹"}
+        <div className="payment__section">
+          <div className="payment__title">
+            <h3>Review items and delivery</h3>
+          </div>
+          <div className="payment__items">
+            {basket.map((item) => (
+              <CheckoutProduct
+                id={item.id}
+                title={item.title}
+                image={item.image}
+                price={item.price}
+                rating={item.rating}
               />
-              <button disabled={processing || disabled || succeeded}>
-                <span>{processing ? <p>Processing</p> : "Buy Now"}</span>
-              </button>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            {/*  Errors */}
-            {error && <div>{error}</div>}
-          </form>
+        <div className="payment__section">
+          <div className="payment__title">
+            <h3>Payment Methods</h3>
+          </div>
+          <div className="payment__details">
+            {/* Stripe magic goes here */}
+            <form onSubmit={handleSubmit}>
+              <CardElement onChange={handleChange} />
+              <div className="payment__priceContainer">
+                <CurrencyFormat
+                  renderText={(value) => <h3>Order Total: {value}</h3>}
+                  decimalScale={2}
+                  value={getBasketTotal(basket)}
+                  displayType="text"
+                  thousandSeperator={true}
+                  prefix="₹"
+                />
+                <button disabled={processing || disabled || succeeded}>
+                  <span>{processing ? <p>Processing</p> : "Buy Now"}</span>
+                </button>
+              </div>
+              {error && <div>error</div>}
+            </form>
+          </div>
         </div>
       </div>
     </div>
