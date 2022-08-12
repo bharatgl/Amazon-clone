@@ -15,7 +15,7 @@ function Orders() {
 
     const database = getDatabase();
 
-    addDoc(collection(db, user)
+    addDoc(collection(database, user)
       .doc(user?.uid)
       .collection("orders")
       .orderBy("created", "desc")
@@ -27,7 +27,7 @@ function Orders() {
           }))
         );
       })
-    );
+    )})
 
   return (
     <div className="orders">
@@ -41,5 +41,6 @@ function Orders() {
     </div>
   );
 }
+
 
 export default Orders;
