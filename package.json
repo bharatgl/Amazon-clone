@@ -1,6 +1,5 @@
 {
-  "homepage": "http://bharatgoyal1471.github.io/Amazon-clone",
-  "name": "my",
+  "name": "Amazon-clone",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
